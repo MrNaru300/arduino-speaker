@@ -1,23 +1,22 @@
-#define RATE 12000 
+#define RATE 14000 //It need to be less than or equal to BAUD_RATE/BAUD_RATE
 #define CHUNK 1024
+#define BAUD_RATE 115200 //Using maximum baud rate for more audio quality
 
 byte buf[CHUNK];
 
 
 void setup() {
-  Serial.begin(RATE*8); //Number of bits per sample
-
   //Set the first 8 pins to output and resets them
   //The ports need to be 1-8 for more speed using direct port manipulation
   for (int pin = 0; pin < 8; pin++) {
   	pinMode(pin, OUTPUT);
     digitalWrite(pin, LOW);
   }
+  Serial.begin(BAUD_RATE);
 }
 
-
-void serialEvent() {
-  while (Serial.avalible()) {
+void loop() {
+  while (Serial.available()) {
     Serial.readBytes(buf, CHUNK);
     playMusic();
   }
