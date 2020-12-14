@@ -1,29 +1,25 @@
 #define RATE 14000 //It need to be less than or equal to BAUD_RATE/BAUD_RATE
-#define CHUNK 1024
+#define CHUNK 8
 #define BAUD_RATE 115200 //Using maximum baud rate for more audio quality
 
 byte buf[CHUNK];
 
-
 void setup() {
-  //Set the first 8 pins to output and resets them
-  //The ports need to be 1-8 for more speed using direct port manipulation
-  for (int pin = 0; pin < 8; pin++) {
+  for (int pin = 2; pin < 9; pin++) {
   	pinMode(pin, OUTPUT);
     digitalWrite(pin, LOW);
   }
+  //testWaves(1440, 1);
   Serial.begin(BAUD_RATE);
+  Serial.println("");
 }
 
 void loop() {
-  while (Serial.available()) {
-    Serial.readBytes(buf, CHUNK);
-    playMusic();
-  }
-  playSample(0); //Stop playing if there is no data
+  Serial.readBytes(buf, CHUNK);
+  playMusic();
 }
 
-void testWaves(int freq, int time) {
+void testWaves(int freq, float time) {
   //Tests every wave tone for especific time 
   for (int i = 0; i < time*freq; i++) {
    squareTone(freq); 
@@ -69,10 +65,12 @@ void playMusic() {
   //Automatically play every sample from buffer
   for (int i = 0; i < CHUNK; i++) {
     playSample(buf[i]);
+    delayMicroseconds(floor(1000000/RATE));
   }
 }
 
 void playSample(byte sample) {
   //Directly writes the sample on ports 1-8 for more speed
-  PORTD = sample;
+  PORTD = 0b00111111 & sample;
+  PORTB = 0b11000000 & sample;
 }
